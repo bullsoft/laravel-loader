@@ -78,28 +78,11 @@ class Laravel
 
     public function login(array $info, ?string $redirectUrl = null)
     {
-        $request = $this->request->duplicate();
-        $token = $this->syncToken($request);
-        $info['token'] = $token;
-        $this->buildLoginRequest($request, $info);
+        $request = $this->newRequest('/login', 'POST');
         $response = $this->sendRequest($request);
+        $request->request->set('username', $info['username']);
+        $request->request->set('password', $info['password']);
         $this->finishWithCookies($request, $response, $redirectUrl);
-    }
-
-    protected function buildLoginRequest($request, array $info) : void
-    {
-        $userName  = $info['username'];
-        $password  = $info['password'];
-        $token     = $info['token'];
-        
-        $request->server->set('REQUEST_METHOD', 'POST');
-        $request->server->set('REQUEST_URI', '/login');
-        $request->request->set('username', $userName);
-        $request->request->set('password', $password);
-        $request->request->set('_token', $token);
-    
-        $sessionId = $this->getSessionId($request);
-        $request->cookies->set(env('COOKIE_NAME'), $sessionId);
     }
 
     public function checkUserLogin(string $uri = '/', $method = 'GET')
@@ -145,7 +128,9 @@ class Laravel
 
     public function finish($request, $response)
     {
+        $cont = $response->getContent();
         $this->kernel->terminate($request, $response);
+        return $cont;
     }
 
     public function finishWithCookies($request, $response, ?string $redirectUrl = null)
@@ -161,8 +146,9 @@ class Laravel
             header("Location: {$redirectUrl}", true, 302);
         } else {
             header(sprintf('HTTP/%s %s %s', '1.1', "200", "OK"), true, 200);
-            return $response->getContent();
         }
+        $cont = $response->getContent();
         $this->kernel->terminate($request, $response);
+        return $cont;	
     }
 }
