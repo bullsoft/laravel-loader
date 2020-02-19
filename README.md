@@ -9,7 +9,7 @@ $conf = [
     'url' => 'http://redirect/to/when/login/successfully',
 ];
 
-$laravel = \BullSoft\Laravel::bootstrap($conf['basePath']);
+$laravel = \BullSoft\Loader\Laravel::bootstrap($conf['basePath']);
 
 if(!$laravel->checkUserLogin()) {
     $info = ['username' => 'roy', 'password' => 'iloveroy'];
