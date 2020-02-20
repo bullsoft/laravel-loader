@@ -3,6 +3,8 @@ namespace BullSoft\Loader;
 
 use Laravel\Passport\ApiTokenCookieFactory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Laravel 
 {
@@ -44,7 +46,7 @@ class Laravel
         self::autoload($basePath);
         $this->app = require_once $basePath. '/bootstrap/app.php';
         $this->kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class); 
-        $this->request = \Illuminate\Http\Request::capture();
+        $this->request = Request::capture();
     }
 
     public function getSessionId($request) : string
@@ -76,7 +78,7 @@ class Laravel
         return $token;
     }
 
-    public function login(array $info, ?string $redirectUrl = null)
+    public function login(array $info, ?string $redirectUrl = null) : string
     {
         $request = $this->newRequest('/login', 'POST');
         $response = $this->sendRequest($request);
@@ -84,10 +86,10 @@ class Laravel
         foreach($info as $k => $v) {
             $request->request->set($k, $v);
         }
-        $this->finishWithCookies($request, $response, $redirectUrl);
+        return $this->finishWithCookies($request, $response, $redirectUrl);
     }
 
-    public function checkUserLogin(string $uri = '/', $method = 'GET')
+    public function checkUserLogin(string $uri = '/', $method = 'GET') : bool
     {
         $request = $this->newRequest($uri, $method);
         $response = $this->sendRequest($request);
@@ -95,7 +97,7 @@ class Laravel
         return Auth::check();
     }
 
-    public function newApiRequest(string $uri, string $method = 'GET')
+    public function newApiRequest(string $uri, string $method = 'GET') : Request
     {
         $request = $this->request->duplicate();
         $request->server->set('REQUEST_METHOD', strtoupper($method));
@@ -111,7 +113,7 @@ class Laravel
         return $request;
     }
 
-    public function newRequest(string $uri, string $method = 'GET')
+    public function newRequest(string $uri, string $method = 'GET') : Request
     {
         $request = $this->request->duplicate();
         $request->server->set('REQUEST_METHOD', strtoupper($method));
@@ -123,19 +125,19 @@ class Laravel
         return $request;
     }
 
-    public function sendRequest($request)
+    public function sendRequest($request) : Response
     {
         return $this->kernel->handle($request);
     }
 
-    public function finish($request, $response)
+    public function finish($request, $response) : string
     {
         $cont = $response->getContent();
         $this->kernel->terminate($request, $response);
         return $cont;
     }
 
-    public function finishWithCookies($request, $response, ?string $redirectUrl = null)
+    public function finishWithCookies($request, $response, ?string $redirectUrl = null) : string
     {
         foreach ($response->headers->getCookies() as $cookie) {
             if($cookie->getName() == env('COOKIE_NAME')) {
