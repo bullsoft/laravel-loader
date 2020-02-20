@@ -80,8 +80,10 @@ class Laravel
     {
         $request = $this->newRequest('/login', 'POST');
         $response = $this->sendRequest($request);
-        $request->request->set('username', $info['username']);
-        $request->request->set('password', $info['password']);
+        // fill POST data
+        foreach($info as $k => $v) {
+            $request->request->set($k, $v);
+        }
         $this->finishWithCookies($request, $response, $redirectUrl);
     }
 
