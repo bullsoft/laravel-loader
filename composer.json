@@ -1,0 +1,18 @@
+{
+    "name": "bullsoft/laravel-loader",
+    "description": "Load Laravel-Application in your codebase.",
+    "keywords": ["laravel", "laravel-loader", "laravel-bootstrap"],
+    "license": "MIT",
+    "homepage": "https://www.bullsoft.org",
+    "authors": [
+        {
+            "name": "Weigang Gu",
+            "email": "guweigang@bullsoft.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "BullSoft\\Loader": "src/Loader/"
+        }
+    }
+}
