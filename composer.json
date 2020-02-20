@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "BullSoft\\Loader": "src/Loader/"
+            "BullSoft\\Loader\\": "src/Loader/"
         }
     }
 }
